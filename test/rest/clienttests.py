@@ -30,20 +30,31 @@ class ClientTests(TestClassBase):
         assert json == StaticJsonData.valid_json
 
     @testmethod
-    @Assert.expectexceptiontype(ConnectionError)
-    def T_get_json_WhenDataSourceRaisesUnhandled_ExceptionBubbles(self):
+    @Assert.expectexceptiontype(ClientError)
+    def T_get_json_WhenResponseThrowsDatasourceError_WrapException(self):
         # arrange
-        self.mock_datasource.setup("get").throws(ConnectionError)
+        self.mock_response.setup("as_json").throws(DatasourceError("invalid"))
+        self.mock_datasource.setup("get").returns(self.mock_response.object())
+        client = Client(self.mock_datasource.object())
+
+        #act
+        json = client.get_json("some path", None, None)
+
+    @testmethod
+    @Assert.expectexceptiontype(ClientError)
+    def T_get_json_WhenDatasourceThrowsDatasourceError_ExceptionWrapped(self):
+        # arrange
+        self.mock_datasource.setup("get").throws(DatasourceError("Src Error."))
         client = Client(self.mock_datasource.object())
 
         # act
         client.get_json("some path", None, None)
 
     @testmethod
-    @Assert.expectexceptiontype(ClientError)
-    def T_get_json_WhenDatasourceRaisesHandled_ExceptionWrapped(self):
+    @Assert.expectexceptiontype(ConnectionError)
+    def T_get_json_WhenDataSourceThrowsUnhandled_ExceptionBubbles(self):
         # arrange
-        self.mock_datasource.setup("get").throws(DatasourceError("Src Error."))
+        self.mock_datasource.setup("get").throws(ConnectionError)
         client = Client(self.mock_datasource.object())
 
         # act

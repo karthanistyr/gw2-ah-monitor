@@ -1,4 +1,5 @@
 import inspect
+import traceback
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from ..helpers.time import get_microseconds
@@ -65,7 +66,10 @@ class UnitTestResult:
         return UnitTestResult(func_name, status, run_time, exception)
 
     def __repr__(self):
-        return "Func Name: {}; Status: {}; Exception: {}; Run Time: {}".format(self.func_name, self.status, self.exception, self.run_time)
+        exception_repr = self.exception
+        if(self.exception is not None):
+            exception_repr = traceback.format_exception(self.exception.__class__, self.exception, self.exception.__traceback__)
+        return "Func Name: {}; Status: {}; Exception: {}; Run Time: {}".format(self.func_name, self.status, exception_repr, self.run_time)
 
 class TestRunner:
     def run_from_class(self, cls):

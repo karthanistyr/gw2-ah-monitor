@@ -3,11 +3,12 @@ from ..helpers.math   import mod
 from ..rest.endpoints import PricesEndpoint
 
 class Monitor:
-    def __init__(self, batch_size=200):
+    def __init__(self, batch_size=200, prices_endpoint=PricesEndpoint()):
         self.batch_size = batch_size
+        self.prices_endpoint = prices_endpoint
 
     def get_items_count(self):
-        return len(PricesEndpoint().prepare_call().execute())
+        return len(self.prices_endpoint.prepare_call().execute())
 
     async def insert_calls_in_loop(self, event_loop, calls):
         if(calls is None or len(calls) == 0):
@@ -27,11 +28,9 @@ class Monitor:
         nb_calls = nb_calls_variables[0] if nb_calls_variables[1] == 0 \
             else nb_calls_variables[0] + 1
 
-        ep = PricesEndpoint()
-        calls = [ep.prepare_call({"page_size": self.batch_size,
-            "page": i})
-            for i in range(0, nb_calls)]
+        calls = [self.prices_endpoint.prepare_call({"page_size": self.batch_size,
+            "page": i}) for i in range(0, nb_calls)]
 
         rslt = el.run_until_complete(self.insert_calls_in_loop(el, calls))
 
-        print(len(rslt))
+        return rslt

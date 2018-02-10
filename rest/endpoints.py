@@ -3,16 +3,21 @@ import urllib.parse
 from .client import Client
 from .exceptions import ArgumentValidationError
 
+class GW2ApiEndpointAddresses:
+    Prices = "prices"
+
 #TODO consider async methods here
 class EndpointCall:
-    def __init__(self, endpoint_address, arguments, api_key=None):
+    def __init__(self, endpoint_address, arguments, api_key=None,
+        client=Client()):
         self.endpoint_address = endpoint_address
         self.arguments = arguments
         self.api_key = api_key
+        self.client = client
 
     def execute(self):
-        client = Client()
-        response = client.get_json(self.endpoint_address, arguments=self.arguments,
+        response = self.client.get_json(self.endpoint_address,
+            arguments=self.arguments,
             api_key=self.api_key)
         return response
 
@@ -23,7 +28,10 @@ class BaseEndpoint(metaclass=ABCMeta):
 
     def __init__(self, address, valid_arguments):
         self.address = urllib.parse.urljoin(BaseEndpoint.root_endpoint_address,
-            address)
+            address.strip("/")) # remove leading and trailing slashes
+
+        if(valid_arguments is not None):
+            assert type(valid_arguments) is list
         self.valid_arguments = valid_arguments
 
     @abstractmethod
@@ -34,7 +42,7 @@ class BaseEndpoint(metaclass=ABCMeta):
         for arg in argument_list:
             if(arg not in self.valid_arguments):
                 raise ArgumentValidationError("An unknown argument name for "+
-                " this endpoint was passed.", arg)
+                "this endpoint was passed.", arg)
         self._validate_arguments_specific(argument_list)
 
     def prepare_call(self, argument_list=None, api_key=None):
@@ -56,4 +64,5 @@ class PaginatedEndpoint(BaseEndpoint):
 
 class PricesEndpoint(PaginatedEndpoint):
     def __init__(self):
-        super().__init__("prices", ["ids", "page_size", "page"])
+        super().__init__(GW2ApiEndpointAddresses.Prices,
+            ["ids", "page_size", "page"])
