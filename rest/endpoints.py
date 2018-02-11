@@ -4,7 +4,8 @@ from .client import Client
 from .exceptions import ArgumentValidationError
 
 class GW2ApiEndpointAddresses:
-    Prices = "prices"
+    Prices = "commerce/prices"
+    Items = "items"
 
 #TODO consider async methods here
 class EndpointCall:
@@ -24,11 +25,8 @@ class EndpointCall:
 class BaseEndpoint(metaclass=ABCMeta):
     """Base class for endpoint sub-types"""
 
-    root_endpoint_address = "commerce/"
-
     def __init__(self, address, valid_arguments):
-        self.address = urllib.parse.urljoin(BaseEndpoint.root_endpoint_address,
-            address.strip("/")) # remove leading and trailing slashes
+        self.address = address.strip("/") # remove leading and trailing slashes
 
         if(valid_arguments is not None):
             assert type(valid_arguments) is list
@@ -66,3 +64,8 @@ class PricesEndpoint(PaginatedEndpoint):
     def __init__(self):
         super().__init__(GW2ApiEndpointAddresses.Prices,
             ["ids", "page_size", "page"])
+
+class ItemsEndpoint(PaginatedEndpoint):
+    def __init__(self):
+        super().__init__(GW2ApiEndpointAddresses.Items,
+            ["ids", "lang", "page_size", "page"])

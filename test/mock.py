@@ -49,6 +49,10 @@ def _override_member_by_name(obj, member_name, replacement):
     else:
         setattr(obj, member_name, replacement)
 
+def _override_member_by_name_with_mock(obj, member_name, mock_member):
+    mock_member._get_callable_signature(getattr(obj, member_name))
+    _override_member_by_name(obj, member_name, mock_member._code)
+
 def _override_all_members_with_throw(obj, excluded_names=None):
     for member_name in obj.__dict__:
         if(excluded_names is None or member_name not in excluded_names):
@@ -79,6 +83,9 @@ class Mock:
         self.setups[class_member_name] = stp
         return stp
 
+    def verify(self, class_member_name):
+        return self.setups.get(class_member_name, None)
+
     def object(self):
         proxy_type = type("__{}_Proxy__".format(self.mocked_class.__qualname__), (self.mocked_class,), {})
         #forcing argument-less ctor
@@ -90,7 +97,7 @@ class Mock:
                 excluded_names={"__init__"}.update(self.setups.keys()))
 
         for st in self.setups:
-            _override_member_by_name(mock, st, self.setups[st]._code)
+            _override_member_by_name_with_mock(mock, st, self.setups[st])
 
         return mock
 
@@ -98,12 +105,74 @@ class MockedMember:
     """Mock member behaviour. Provides an interface for specifying how a given
     mocked member should behave."""
 
-    def __init__(self, cls_member):
-        self.mocked_member = cls_member
-        self._code = _throw_member_not_setup_exception(cls_member)
+    def _call_is_legal(self, signature, args, kwargs):
+        """Verifies that the arguments respect the signature of the mocked
+        function. If the call is legal, return the named arguments' list"""
+
+        call_instance = {}
+        if(signature is not None):
+
+            # prepare a list of all positional arguments' arg_names
+            # from the signature
+            positional_args_in_sig = [param for pkey, param
+                in signature.parameters.items()
+                if param.default == inspect.Parameter.empty
+                    and param.kind != inspect.Parameter.VAR_POSITIONAL]
+
+            # get signature args list, which are ordered
+            arg_names = list(signature.parameters.keys())
+
+            if(len(args) > len(arg_names)):
+                raise Exception("Too many positional arguments passed.")
+
+            for pos_arg_index in range(0,len(args)):
+                call_instance[arg_names[pos_arg_index]] = args[pos_arg_index]
+
+            duplicate_args = [arg_name for arg_name in kwargs
+                if arg_name in call_instance]
+            if(any(duplicate_args)):
+                raise Exception("Mutiple values passed for arguments: {}".format(duplicate_args))
+
+            illegal_args = [arg_name for arg_name in kwargs
+                if arg_name not in arg_names]
+            if(any(illegal_args)):
+                raise Exception("Unknown arguments: {}".format(illegal_args))
+
+            call_instance.update(kwargs)
+
+            missing_args = [pos_arg.name for pos_arg in positional_args_in_sig
+                if pos_arg.name not in call_instance]
+            if(any(missing_args)):
+                raise Exception("Missing positional arguments: {}".format(missing_args))
+        return call_instance
+
+    def _track_calls(self, func):
+        def track_and_execute(*args, **kwargs):
+            self._calls.append(self._call_is_legal(self._signature, args, kwargs))
+            return func(*args, **kwargs)
+
+        return track_and_execute
+
+    def __init__(self, cls_member_name):
+        self._calls = []
+        self._signature = None
+        self._code = _throw_member_not_setup_exception(cls_member_name)
+
+    def _get_callable_signature(self, cllble):
+        if(callable(cllble)):
+            self._signature = inspect.signature(cllble)
 
     def returns(self, expression):
-        self._code = _return_expression(expression)
+        self._code = self._track_calls(_return_expression(expression))
 
     def throws(self, exception: Exception):
-        self._code = _throw_exception(exception)
+        self._code = self._track_calls(_throw_exception(exception))
+
+    def was_called(self, arguments=None, times=None):
+        if(arguments is None and times is None):
+            return any(self._calls)
+        if(arguments is None):
+            return len(self._calls) == times
+        if(times is None):
+            return arguments in self._calls
+        return len([args for args in self._calls if args == arguments]) == times

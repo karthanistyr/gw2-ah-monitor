@@ -78,7 +78,7 @@ class PaginatedEndpointTests(TestClassBase):
     def T_ctor_AddressHasLeadingSlash_AddressIsConcatenatedWithRoot(self):
         # arrange
         test_ep_address = "/some_endpoint"
-        expected_ep_address = "{}/{}".format(BaseEndpoint.root_endpoint_address.strip("/"), test_ep_address.strip("/"))
+        expected_ep_address = test_ep_address.strip("/")
         #act
         ep = PaginatedEndpoint(address=test_ep_address, valid_arguments=[])
 
@@ -89,7 +89,7 @@ class PaginatedEndpointTests(TestClassBase):
     def T_ctor_AddressHasTrailingSlash_AddressIsConcatenatedWithRoot(self):
         # arrange
         test_ep_address = "some_endpoint/"
-        expected_ep_address = "{}/{}".format(BaseEndpoint.root_endpoint_address.strip("/"), test_ep_address.strip("/"))
+        expected_ep_address = test_ep_address.strip("/")
 
         #act
         ep = PaginatedEndpoint(address=test_ep_address+"/", valid_arguments=[])
@@ -101,7 +101,7 @@ class PaginatedEndpointTests(TestClassBase):
     def T_ctor_AddressHasBothSlashes_AddressIsConcatenatedWithRoot(self):
         # arrange
         test_ep_address = "/some_endpoint/"
-        expected_ep_address = "{}/{}".format(BaseEndpoint.root_endpoint_address.strip("/"), test_ep_address.strip("/"))
+        expected_ep_address = test_ep_address.strip("/")
 
         #act
         ep = PaginatedEndpoint(address=test_ep_address, valid_arguments=[])
@@ -230,8 +230,7 @@ class PricesEndpointTests(TestClassBase):
     def T_ctor_EndpointAddressIsCorrect(self):
         # arrange
         ep = PricesEndpoint()
-        expected_address = "{}/{}".format(BaseEndpoint.root_endpoint_address.strip("/"),
-            GW2ApiEndpointAddresses.Prices.strip("/"))
+        expected_address = GW2ApiEndpointAddresses.Prices.strip("/")
 
         # assert
         assert ep.address == expected_address
