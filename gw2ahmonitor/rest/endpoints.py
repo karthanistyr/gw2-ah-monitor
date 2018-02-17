@@ -9,8 +9,10 @@ class GW2ApiEndpointAddresses:
 
 #TODO consider async methods here
 class EndpointCall:
-    def __init__(self, endpoint_address, arguments, api_key=None,
-        client=Client()):
+    def __init__(
+            self, endpoint_address,
+            arguments, api_key=None,
+            client=Client()):
         self.endpoint_address = endpoint_address
         self.arguments = arguments
         self.api_key = api_key

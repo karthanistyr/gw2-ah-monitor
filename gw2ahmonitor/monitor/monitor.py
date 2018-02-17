@@ -1,6 +1,7 @@
 import asyncio
 import time
 from ..helpers.math import mod
+from ..helpers.time import to_iso8601
 from ..rest.endpoints import PricesEndpoint
 from ..storage.storage import Storage
 
@@ -22,7 +23,7 @@ class Monitor:
 
         futures = [event_loop.run_in_executor(executor=None, func=call.execute)
             for call in calls]
-
+        current_time_iso = to_iso8601(time.gmtime())
         return [await future for future in futures]
 
     def get_prices(self):
@@ -48,6 +49,7 @@ class Monitor:
         fragmented_prices = None
         try:
             fragmented_prices = self.get_prices()
+            print(fragmented_prices)
             self.storage.store_price_points(
                 [price for fragment in fragmented_prices for price in fragment]
                 )

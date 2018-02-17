@@ -87,9 +87,16 @@ class Mock:
         return self.setups.get(class_member_name, None)
 
     def object(self):
-        proxy_type = type("__{}_Proxy__".format(self.mocked_class.__qualname__), (self.mocked_class,), {})
+        proxy_type = type(
+            "__{}_Proxy__".format(self.mocked_class.__qualname__),
+            (self.mocked_class,),
+            {}
+            )
         #forcing argument-less ctor
-        _override_member_by_name(proxy_type, "__init__", _pass_through_method())
+        _override_member_by_name(
+            obj=proxy_type,
+            member_name="__init__",
+            replacement=_pass_through_method())
 
         mock = proxy_type()
         if(self.mode == MockMode.Strict):

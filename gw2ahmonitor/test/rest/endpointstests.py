@@ -7,7 +7,9 @@ from ..mock import Mock, MockMode
 class EndpointCallTests(TestClassBase):
 
     class CustomError(Exception):
-        """Custom exception type to assert on throws when running unit tests"""
+        """Custom exception type to assert on throws
+        when running unit tests
+        """
         def __init__(self, message):
             super().__init__(message)
 
