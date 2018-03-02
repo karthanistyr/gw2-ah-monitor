@@ -6,8 +6,8 @@ from .exceptions import ArgumentValidationError
 class GW2ApiEndpointAddresses:
     Prices = "commerce/prices"
     Items = "items"
+    Listings = "commerce/listings"
 
-#TODO consider async methods here
 class EndpointCall:
     def __init__(
             self, endpoint_address,
@@ -71,3 +71,8 @@ class ItemsEndpoint(PaginatedEndpoint):
     def __init__(self):
         super().__init__(GW2ApiEndpointAddresses.Items,
             ["ids", "lang", "page_size", "page"])
+
+class ListingsEndpoint(PaginatedEndpoint):
+    def __init__(self):
+        super().__init__(GW2ApiEndpointAddresses.Listings,
+            ["ids", "page_size", "page"])

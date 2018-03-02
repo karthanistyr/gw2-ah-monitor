@@ -15,4 +15,4 @@ if [ ! -d "$LOCALDIR" ]; then
   chown -R $USERNAME $LOCALDIR
 fi
 
-python `dirname $0`/gw2-ah-monitor.py
+python `dirname $0`/ahdaemon.py

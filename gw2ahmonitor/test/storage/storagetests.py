@@ -96,3 +96,85 @@ class StorageTests(TestClassBase):
                 arguments={"table_name": malformed_table,
                     "items": [malformed_item]},
                 times=1)
+
+    @testmethod
+    def T_maintain_items_list_WhenNoItems_NeverCallBackend(self):
+        mock_backend = Mock(BackendBase)
+        mock_backend.setup("upsert").returns(None)
+        storage = Storage(mock_backend.object())
+
+        # act
+        storage.maintain_items_list([])
+
+        # assert
+        assert not mock_backend.verify("upsert").was_called()
+
+    @testmethod
+    def T_maintain_items_list_WhenMalformedPrices_CallBackendOnce(self):
+        mock_backend = Mock(BackendBase)
+        mock_backend.setup("upsert").returns(None)
+        storage = Storage(mock_backend.object())
+        malformed_items = [{"malformed": 1}, {"malformed": 2}]
+        malformed_table = "items_error"
+
+        # act
+        storage.maintain_items_list(malformed_items)
+
+        # assert
+        assert mock_backend.verify("upsert").was_called(
+                arguments={"table_name": malformed_table,
+                    "items": malformed_items},
+                times=1)
+
+    @testmethod
+    def T_maintain_items_list_WhenWellFormedPrices_CallBackendOnce(self):
+        mock_backend = Mock(BackendBase)
+        mock_backend.setup("upsert").returns(None)
+        storage = Storage(mock_backend.object())
+        well_formed_items = [{
+            "id": 86905,
+            "name": {
+                "fr": "Sandales",
+                "en": "Sandals"
+            }
+        }]
+        well_formed_table = "items"
+
+        # act
+        storage.maintain_items_list(well_formed_items)
+
+        # assert
+        assert mock_backend.verify("upsert").was_called(
+                arguments={"table_name": well_formed_table,
+                    "items": well_formed_items},
+                times=1)
+
+    @testmethod
+    def T_maintain_items_list_WhenMalWellPrices_CallBackendOnceEach(self):
+        mock_backend = Mock(BackendBase)
+        mock_backend.setup("upsert").returns(None)
+        storage = Storage(mock_backend.object())
+        well_formed_item = {
+            "id": 86905,
+            "name": {
+                "fr": "Sandales",
+                "en": "Sandals"
+            }
+        }
+        malformed_item = {"another_malformed_item": "malformed"}
+        well_formed_table = "items"
+        malformed_table = "items_error"
+
+        # act
+        storage.maintain_items_list([well_formed_item, malformed_item])
+
+        # assert
+        assert mock_backend.verify("upsert").was_called(
+                arguments={"table_name": well_formed_table,
+                    "items": [well_formed_item]},
+                times=1)
+
+        assert mock_backend.verify("upsert").was_called(
+                arguments={"table_name": malformed_table,
+                    "items": [malformed_item]},
+                times=1)
