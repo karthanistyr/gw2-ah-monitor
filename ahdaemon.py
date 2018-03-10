@@ -22,7 +22,7 @@ def maintain_items_data_cache():
     monitor.refresh_and_store()
 
 def run_main_loop():
-    # LoggingHelper.init_logging()
+    LoggingHelper.init_logging()
     LoggingHelper.info("Daemon started...")
 
     schedule.every().minute.do(get_prices)
@@ -48,8 +48,6 @@ def run_daemon():
         with daemon.DaemonContext(
                 working_directory=root_dir,
                 uid=uid,
-                stdout=sys.stdout,
-                stderr=sys.stderr,
                 gid=gid,
                 umask=0o002,
                 pidfile=lockfile.FileLock(pidlock_file)

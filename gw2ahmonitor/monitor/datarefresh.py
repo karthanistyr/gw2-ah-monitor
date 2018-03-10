@@ -1,10 +1,10 @@
 import asyncio
 import time
-from abc import ABCMeta, abstractmethod
 from ..helpers.logging import LoggingHelper
 from ..helpers.exception import format_exception
 from ..helpers.math import mod
 from ..helpers.time import to_iso8601
+from ..helpers.session import SessionHelper
 from ..rest.endpoints import PricesEndpoint, ItemsEndpoint, ListingsEndpoint
 from ..storage.storage import Storage
 
@@ -21,11 +21,17 @@ class DataRefresher:
         if(calls is None or not any(calls)):
             raise ValueError("There should be at least one call passed here.")
 
-        futures = [event_loop.run_in_executor(executor=None, func=call.execute)
-            for call in calls]
+        with SessionHelper():
+            s = SessionHelper.get_ambient_session()
+            if(s is None):
+                raise Exception(str(s))
 
-        # this is a 2-level nested for loop to flatten a list of lists
-        return [element for future in futures for element in (await future)]
+            futures = [event_loop.run_in_executor(executor=None, func=call.execute)
+                for call in calls]
+            # this is a 2-level nested for loop to flatten a list of lists
+            elems = [element for future in futures for element in (await future)]
+
+        return elems
 
     def get_items_count(self):
         return len(self.endpoint.prepare_call().execute())

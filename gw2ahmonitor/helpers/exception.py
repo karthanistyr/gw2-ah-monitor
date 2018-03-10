@@ -9,3 +9,7 @@ def format_exception(exception):
             tb=exception.__traceback__
             )
         )
+
+class ApplicationError(Exception):
+    def __init__(self, message):
+        super().__init__(message)

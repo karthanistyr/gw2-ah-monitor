@@ -56,6 +56,7 @@ class Storage:
         return True
 
     def store_price_points(self, price_points):
+        """Insert new price_points into storage"""
         error_price_points = []
         valid_price_points = []
         for pp in price_points:
@@ -71,6 +72,7 @@ class Storage:
             self.backend.insert("price_point_error", error_price_points)
 
     def store_listings(self, listings):
+        """Insert new listings into storage"""
         error_listings = []
         valid_listings = []
         for li in listings:
@@ -86,6 +88,7 @@ class Storage:
             self.backend.insert("listing_error", error_listings)
 
     def maintain_items_list(self, items):
+        """Upsert item information into storage"""
         error_items = []
         valid_items = []
         for item in items:

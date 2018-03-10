@@ -31,6 +31,8 @@ class MongoDbBackend(BackendBase):
         self.db["item_error"].create_index(keys=[("id", pymongo.ASCENDING)])
         self.db["price_point"].create_index(keys=[("id", pymongo.ASCENDING)])
         self.db["price_point_error"].create_index(keys=[("id", pymongo.ASCENDING)])
+        self.db["listing"].create_index(keys=[("id", pymongo.ASCENDING)])
+        self.db["listing_error"].create_index(keys=[("id", pymongo.ASCENDING)])
 
     def insert(self, table_name, items):
         return self.db[table_name].insert_many(items)

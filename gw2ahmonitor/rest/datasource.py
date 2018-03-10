@@ -1,10 +1,31 @@
 import requests
+from ..helpers.session import SessionHelper
 from .exceptions import DatasourceError
 
 class RequestsDatasource:
     def get(self, address, params, headers):
         try:
-            response = requests.get(address, params=params, headers=headers)
+            # activate for monitoring in ZAP or fiddler
+            # proxies = {
+            #     "https": "https://localhost:8080"
+            # }
+
+            session = SessionHelper.get_ambient_session()
+
+            if(session is None):
+                response = requests.get(address,
+                    # activate for monitoring in ZAP or fiddler
+                    # proxies=proxies,
+                    # verify=False,
+                    params=params,
+                    headers=headers)
+            else:
+                response = session.get(address,
+                    # activate for monitoring in ZAP or fiddler
+                    # proxies=proxies,
+                    # verify=False,
+                    params=params,
+                    headers=headers)
             # only throws when status is not 200 OK
             response.raise_for_status()
             return RequestsDatasource.Response(response)

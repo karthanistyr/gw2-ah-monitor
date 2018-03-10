@@ -110,12 +110,12 @@ class StorageTests(TestClassBase):
         assert not mock_backend.verify("upsert").was_called()
 
     @testmethod
-    def T_maintain_items_list_WhenMalformedPrices_CallBackendOnce(self):
+    def T_maintain_items_list_WhenMalformedItems_CallBackendOnce(self):
         mock_backend = Mock(BackendBase)
         mock_backend.setup("upsert").returns(None)
         storage = Storage(mock_backend.object())
         malformed_items = [{"malformed": 1}, {"malformed": 2}]
-        malformed_table = "items_error"
+        malformed_table = "item_error"
 
         # act
         storage.maintain_items_list(malformed_items)
@@ -127,7 +127,7 @@ class StorageTests(TestClassBase):
                 times=1)
 
     @testmethod
-    def T_maintain_items_list_WhenWellFormedPrices_CallBackendOnce(self):
+    def T_maintain_items_list_WhenWellFormedItems_CallBackendOnce(self):
         mock_backend = Mock(BackendBase)
         mock_backend.setup("upsert").returns(None)
         storage = Storage(mock_backend.object())
@@ -138,7 +138,7 @@ class StorageTests(TestClassBase):
                 "en": "Sandals"
             }
         }]
-        well_formed_table = "items"
+        well_formed_table = "item"
 
         # act
         storage.maintain_items_list(well_formed_items)
@@ -150,7 +150,7 @@ class StorageTests(TestClassBase):
                 times=1)
 
     @testmethod
-    def T_maintain_items_list_WhenMalWellPrices_CallBackendOnceEach(self):
+    def T_maintain_items_list_WhenMalWellItems_CallBackendOnceEach(self):
         mock_backend = Mock(BackendBase)
         mock_backend.setup("upsert").returns(None)
         storage = Storage(mock_backend.object())
@@ -162,8 +162,8 @@ class StorageTests(TestClassBase):
             }
         }
         malformed_item = {"another_malformed_item": "malformed"}
-        well_formed_table = "items"
-        malformed_table = "items_error"
+        well_formed_table = "item"
+        malformed_table = "item_error"
 
         # act
         storage.maintain_items_list([well_formed_item, malformed_item])
