@@ -1,5 +1,5 @@
 import urllib.parse
-from .exceptions import ClientError, DatasourceError
+from ..helpers.exception import ClientError, DatasourceError
 from .datasource import RequestsDatasource
 
 class Client:

@@ -22,10 +22,6 @@ class DataRefresher:
             raise ValueError("There should be at least one call passed here.")
 
         with SessionHelper():
-            s = SessionHelper.get_ambient_session()
-            if(s is None):
-                raise Exception(str(s))
-
             futures = [event_loop.run_in_executor(executor=None, func=call.execute)
                 for call in calls]
             # this is a 2-level nested for loop to flatten a list of lists

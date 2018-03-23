@@ -7,6 +7,7 @@ class BackendBase:
     def insert(self, table_name, items):
         pass
 
+    @abstractmethod
     def upsert(self, table_name, items):
         pass
 

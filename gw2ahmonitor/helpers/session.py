@@ -9,15 +9,14 @@ class SessionHelper:
 
     _ambient_session = None
 
-    def __init__(self):
+    def __enter__(self):
         if(SessionHelper._ambient_session is None):
-            #TODO: ugh; hacky -- we don't always want to use requests?
+            #TODO: ugh; hacky -- also, we don't always want to use requests?
             SessionHelper._ambient_session = requests.Session()
         else:
             raise ApplicationError("There is already an ambient session.")
-
-    def __enter__(self):
-        # not strictly useful (intended usage is `with SessionHelper():`)
+            
+        # not too useful return (intended usage is `with SessionHelper():`)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):

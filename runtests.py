@@ -3,6 +3,9 @@ from gw2ahmonitor.test.fixture import TestRunner, TestStatusEnum
 from gw2ahmonitor.test.rest.clienttests import *
 from gw2ahmonitor.test.rest.endpointstests import *
 from gw2ahmonitor.test.helpers.assertstests import *
+from gw2ahmonitor.test.helpers.exceptiontests import *
+from gw2ahmonitor.test.helpers.mathtests import *
+from gw2ahmonitor.test.helpers.sessiontests import *
 from gw2ahmonitor.test.storage.storagetests import *
 
 classes_to_test = [
@@ -11,6 +14,9 @@ classes_to_test = [
     PaginatedEndpointTests,
     PricesEndpointTests,
     AssertTests,
+    ExceptionTests,
+    MathTests,
+    SessionHelperTests,
     StorageTests
     ]
 

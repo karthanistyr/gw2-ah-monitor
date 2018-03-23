@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import urllib.parse
 from .client import Client
-from .exceptions import ArgumentValidationError
+from ..helpers.exception import ArgumentValidationError
 
 class GW2ApiEndpointAddresses:
     Prices = "commerce/prices"

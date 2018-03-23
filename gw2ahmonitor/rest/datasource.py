@@ -1,6 +1,6 @@
 import requests
 from ..helpers.session import SessionHelper
-from .exceptions import DatasourceError
+from ..helpers.exception import DatasourceError
 
 class RequestsDatasource:
     def get(self, address, params, headers):
